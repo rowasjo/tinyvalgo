@@ -1,3 +1,3 @@
-module tinyvalgo
+module github.com/rowasjo/tinyvalgo
 
 go 1.18

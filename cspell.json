@@ -4,8 +4,10 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
+        "apiserver",
         "rowasjo",
-        "Tinyval"
+        "Tinyval",
+        "tinyvalgo"
     ],
     "ignoreWords": [],
     "import": []
