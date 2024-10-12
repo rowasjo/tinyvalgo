@@ -22,8 +22,8 @@ func ApiServer() *http.ServeMux {
 	mux.HandleFunc("/openapi.yaml", openApiHandler)
 	mux.HandleFunc("/docs", docsHandler)
 
-	mux.HandleFunc("GET /blobs/{hash}", getBlobHandler) // also matches HEAD
-	mux.HandleFunc("PUT /blobs/{hash}", putBlobHandler)
+	mux.Handle("GET /blobs/{hash}", validationMiddleware(http.HandlerFunc(getBlobHandler))) // also matches HEAD
+	mux.Handle("PUT /blobs/{hash}", validationMiddleware(http.HandlerFunc(putBlobHandler)))
 	return mux
 }
 
@@ -38,27 +38,14 @@ func docsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBlobHandler(w http.ResponseWriter, r *http.Request) {
-	err := validateRequest(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	http.NotFound(w, r)
 }
 
 func putBlobHandler(w http.ResponseWriter, r *http.Request) {
-	err := validateRequest(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	http.NotFound(w, r)
 }
 
-func validateRequest(r *http.Request) error {
-	// TODO: parse schema only once, refactor
+func validationMiddleware(next http.Handler) http.Handler {
 
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
@@ -69,12 +56,21 @@ func validateRequest(r *http.Request) error {
 
 	router, _ := gorillamux.NewRouter(doc)
 
-	route, pathParams, _ := router.FindRoute(r)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		route, pathParams, _ := router.FindRoute(r)
 
-	requestValidationInput := &openapi3filter.RequestValidationInput{
-		Request:    r,
-		PathParams: pathParams,
-		Route:      route,
-	}
-	return openapi3filter.ValidateRequest(ctx, requestValidationInput)
+		requestValidationInput := &openapi3filter.RequestValidationInput{
+			Request:    r,
+			PathParams: pathParams,
+			Route:      route,
+		}
+		err := openapi3filter.ValidateRequest(ctx, requestValidationInput)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
