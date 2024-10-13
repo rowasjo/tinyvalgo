@@ -3,7 +3,7 @@ package assets
 import _ "embed"
 
 //go:embed openapi.yaml
-var OpenapiYaml []byte
+var OpenapiYAML []byte
 
 //go:embed docs.html
-var DocsHtml []byte
+var DocsHTML []byte

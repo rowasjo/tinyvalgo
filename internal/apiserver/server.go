@@ -20,7 +20,7 @@ const (
 func ApiServer() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/openapi.yaml", openApiHandler)
+	mux.HandleFunc("/openapi.yaml", openapiHandler)
 	mux.HandleFunc("/docs", docsHandler)
 
 	doc := openapiDoc()
@@ -35,14 +35,14 @@ func ApiServer() *http.ServeMux {
 	return mux
 }
 
-func openApiHandler(w http.ResponseWriter, r *http.Request) {
+func openapiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(headerContentType, contentTypeYAML)
-	w.Write(assets.OpenapiYaml)
+	w.Write(assets.OpenapiYAML)
 }
 
 func docsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(headerContentType, contentTypeHTML)
-	w.Write(assets.DocsHtml)
+	w.Write(assets.DocsHTML)
 }
 
 func getBlobHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +56,7 @@ func putBlobHandler(w http.ResponseWriter, r *http.Request) {
 func openapiDoc() *openapi3.T {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
-	doc, err := loader.LoadFromData(assets.OpenapiYaml)
+	doc, err := loader.LoadFromData(assets.OpenapiYAML)
 	if err != nil {
 		panic(err)
 	}
