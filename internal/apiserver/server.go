@@ -4,12 +4,7 @@ import (
 	"net/http"
 
 	"github.com/rowasjo/tinyvalgo/internal/lib"
-)
-
-const (
-	headerContentType = "Content-Type"
-	contentTypeHTML   = "text/html"
-	contentTypeYAML   = "application/yaml"
+	"github.com/rowasjo/tinyvalgo/openapidoc"
 )
 
 func ApiServer() *http.ServeMux {
@@ -18,7 +13,7 @@ func ApiServer() *http.ServeMux {
 	mux.HandleFunc("/openapi.yaml", openapiHandler)
 	mux.HandleFunc("/docs", docsHandler)
 
-	doc := lib.OpenapiDoc()
+	doc := lib.LoadOpenapiDoc(openapidoc.OpenapiDocument)
 	validation := lib.OpenAPIValidationMiddlewareFactory(doc)
 
 	mux.Handle("GET /blobs/{hash}", validation(http.HandlerFunc(getBlobHandler))) // also matches HEAD

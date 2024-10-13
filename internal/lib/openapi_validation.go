@@ -8,13 +8,12 @@ import (
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/getkin/kin-openapi/routers"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
-	"github.com/rowasjo/tinyvalgo/assets"
 )
 
-func OpenapiDoc() *openapi3.T {
+func LoadOpenapiDoc(data []byte) *openapi3.T {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
-	doc, err := loader.LoadFromData(assets.OpenapiYAML)
+	doc, err := loader.LoadFromData(data)
 	if err != nil {
 		panic(err)
 	}

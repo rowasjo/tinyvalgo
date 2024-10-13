@@ -8,6 +8,8 @@
         "getkin",
         "gorillamux",
         "openapi",
+        "openapidoc",
+        "openapidocument",
         "rowasjo",
         "stylesheet",
         "swaggerui",
