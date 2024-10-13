@@ -6,6 +6,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
+	"github.com/getkin/kin-openapi/routers"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
 	"github.com/rowasjo/tinyvalgo/assets"
 )
@@ -21,6 +22,13 @@ func ApiServer() *http.ServeMux {
 
 	mux.HandleFunc("/openapi.yaml", openApiHandler)
 	mux.HandleFunc("/docs", docsHandler)
+
+	doc := openapiDoc()
+	router := openapiRouter(doc)
+
+	validationMiddleware := func(next http.Handler) http.Handler {
+		return makeValidationMiddleware(next, router)
+	}
 
 	mux.Handle("GET /blobs/{hash}", validationMiddleware(http.HandlerFunc(getBlobHandler))) // also matches HEAD
 	mux.Handle("PUT /blobs/{hash}", validationMiddleware(http.HandlerFunc(putBlobHandler)))
@@ -45,17 +53,25 @@ func putBlobHandler(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
-func validationMiddleware(next http.Handler) http.Handler {
-
+func openapiDoc() *openapi3.T {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
 	doc, err := loader.LoadFromData(assets.OpenapiYaml)
 	if err != nil {
 		panic(err)
 	}
+	return doc
+}
 
-	router, _ := gorillamux.NewRouter(doc)
+func openapiRouter(doc *openapi3.T) routers.Router {
+	router, err := gorillamux.NewRouter(doc)
+	if err != nil {
+		panic(err)
+	}
+	return router
+}
 
+func makeValidationMiddleware(next http.Handler, router routers.Router) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		route, pathParams, _ := router.FindRoute(r)
 
@@ -64,7 +80,7 @@ func validationMiddleware(next http.Handler) http.Handler {
 			PathParams: pathParams,
 			Route:      route,
 		}
-		err := openapi3filter.ValidateRequest(ctx, requestValidationInput)
+		err := openapi3filter.ValidateRequest(r.Context(), requestValidationInput)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
