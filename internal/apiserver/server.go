@@ -3,7 +3,6 @@ package apiserver
 import (
 	"net/http"
 
-	"github.com/rowasjo/tinyvalgo/assets"
 	"github.com/rowasjo/tinyvalgo/internal/lib"
 )
 
@@ -25,16 +24,6 @@ func ApiServer() *http.ServeMux {
 	mux.Handle("GET /blobs/{hash}", validation(http.HandlerFunc(getBlobHandler))) // also matches HEAD
 	mux.Handle("PUT /blobs/{hash}", validation(http.HandlerFunc(putBlobHandler)))
 	return mux
-}
-
-func openapiHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(headerContentType, contentTypeYAML)
-	w.Write(assets.OpenapiYAML)
-}
-
-func docsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(headerContentType, contentTypeHTML)
-	w.Write(assets.DocsHTML)
 }
 
 func getBlobHandler(w http.ResponseWriter, r *http.Request) {
