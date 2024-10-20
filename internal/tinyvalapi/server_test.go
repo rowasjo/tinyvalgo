@@ -1,4 +1,4 @@
-package apiserver
+package tinyvalapi
 
 import (
 	"net/http"
@@ -13,7 +13,7 @@ func TestOpenApiHandler(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := ApiServer()
+	handler := NewServer()
 
 	handler.ServeHTTP(rr, req)
 

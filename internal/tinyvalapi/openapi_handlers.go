@@ -1,4 +1,4 @@
-package apiserver
+package tinyvalapi
 
 import (
 	"net/http"
