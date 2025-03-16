@@ -10,12 +10,20 @@ import (
 func addRoutes(
 	mux *http.ServeMux,
 ) {
-	mux.HandleFunc("/openapi.yaml", openapiHandler)
-	mux.HandleFunc("/docs", docsHandler)
+	coreMiddlewares := lib.LoggingMiddleware
+
+	mux.Handle("/openapi.yaml", coreMiddlewares(http.HandlerFunc(openapiHandler)))
+	mux.Handle("/docs", coreMiddlewares(http.HandlerFunc(docsHandler)))
 
 	validation := lib.OpenAPIValidationMiddlewareFactory(
 		lib.LoadOpenapiDoc(openapidoc.OpenapiDocument))
 
-	mux.Handle("GET /blobs/{hash}", validation(http.HandlerFunc(getBlobHandler))) // also matches HEAD
-	mux.Handle("PUT /blobs/{hash}", validation(http.HandlerFunc(putBlobHandler)))
+	blobMiddlewares := func(h http.Handler) http.Handler {
+		return coreMiddlewares(validation(h))
+	}
+
+	mux.Handle("GET /blobs/{hash}", blobMiddlewares(http.HandlerFunc(getBlobHandler))) // also matches HEAD
+	mux.Handle("PUT /blobs/{hash}", blobMiddlewares(http.HandlerFunc(putBlobHandler)))
 }
+
+type Middleware func(http.Handler) http.Handler
