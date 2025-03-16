@@ -17,10 +17,10 @@ paths:
           description: Successful Response
           content:
             application/octet-stream: {}
+        "400":
+          description: Bad Request
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
+          description: Not Found
     put:
       tags:
         - Storage
@@ -36,8 +36,10 @@ paths:
       responses:
         "200":
           description: Successful Response
+        "400":
+          description: Bad Request
         "422":
-          $ref: "#/components/responses/UnprocessableEntity"
+          description: Unprocessable Entity
     head:
       tags:
         - Storage
@@ -47,10 +49,10 @@ paths:
       responses:
         "200":
           description: Successful Response
+        "400":
+          description: Bad Request
         "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
+          description: Not Found
 components:
   schemas:
     Body_put_blobs_hash:
@@ -84,16 +86,3 @@ components:
         pattern: ^[0-9a-f]{64}$
         type: string
         description: SHA-256 hash
-  responses:
-    NotFound:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/HTTPError"
-    UnprocessableEntity:
-      description: Unprocessable Entity
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/HTTPError"
