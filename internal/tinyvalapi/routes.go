@@ -9,6 +9,7 @@ import (
 
 func addRoutes(
 	mux *http.ServeMux,
+	repo lib.Repository,
 ) {
 	coreMiddlewares := lib.LoggingMiddleware
 
@@ -22,8 +23,8 @@ func addRoutes(
 		return coreMiddlewares(validation(h))
 	}
 
-	mux.Handle("GET /blobs/{hash}", blobMiddlewares(http.HandlerFunc(getBlobHandler))) // also matches HEAD
-	mux.Handle("PUT /blobs/{hash}", blobMiddlewares(http.HandlerFunc(putBlobHandler)))
+	mux.Handle("GET /blobs/{hash}", blobMiddlewares(http.HandlerFunc(getBlobHandler(repo)))) // also matches HEAD
+	mux.Handle("PUT /blobs/{hash}", blobMiddlewares(http.HandlerFunc(putBlobHandler(repo))))
 }
 
 type Middleware func(http.Handler) http.Handler

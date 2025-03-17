@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rowasjo/tinyvalgo/internal/lib"
 	"github.com/rowasjo/tinyvalgo/internal/tinyvalapi"
 )
 
@@ -19,7 +20,14 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-	srv := tinyvalapi.NewServer()
+	dataDir := os.Getenv("TINYVAL_DATA_DIR")
+	if dataDir == "" {
+		return fmt.Errorf("TINYVAL_DATA_DIR environment variable is not set")
+	}
+
+	repo := lib.NewDiskRepository(dataDir)
+
+	srv := tinyvalapi.NewServer(repo)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort("", "8080"),

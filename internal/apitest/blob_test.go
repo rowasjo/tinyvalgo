@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/matryer/is"
-	"github.com/rowasjo/tinyvalgo/internal/tinyvalapi"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 
 func TestGetBlobInvalidHashReturns400(t *testing.T) {
 	is := is.New(t)
-	handler := tinyvalapi.NewServer()
+	handler := NewTestServer(t)
 
 	req, err := http.NewRequest("GET", "/blobs/invalid-hash", nil)
 	is.NoErr(err)
@@ -29,16 +29,31 @@ func TestGetBlobInvalidHashReturns400(t *testing.T) {
 
 func TestGetUnknownBlobReturns404(t *testing.T) {
 	is := is.New(t)
-	handler := tinyvalapi.NewServer()
+	handler := NewTestServer(t)
 
-	req, err := http.NewRequest(
-		"GET",
-		fmt.Sprintf("/blobs/%s", unknown_blob_sha256_hash),
-		nil)
+	req, err := http.NewRequest("GET", blobUrl(unknown_blob_sha256_hash), nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusNotFound)
+}
+
+func TestPutBlobWithInvalidBodyReturns422(t *testing.T) {
+	is := is.New(t)
+	handler := NewTestServer(t)
+
+	body := strings.NewReader("body not matching hash")
+	req, err := http.NewRequest("PUT", blobUrl(unknown_blob_sha256_hash), body)
+	is.NoErr(err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	is.Equal(rr.Code, http.StatusUnprocessableEntity)
+}
+
+func blobUrl(hash string) string {
+	return fmt.Sprintf("/blobs/%s", hash)
 }
