@@ -1,6 +1,6 @@
 # Tinyval Go
 
-This stores and retrieves binary blobs using their SHA-256 hashes as keys.
+Hash table service for storing and retrieving binary blobs using their SHA-256 hashes as keys.
 
 Note: This project is primarily an experiment in using Go for HTTP service development.
 
