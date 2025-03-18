@@ -20,7 +20,7 @@ func getBlobHandler(repo lib.Repository) http.HandlerFunc {
 			http.Error(w, "not found", http.StatusNotFound)
 			return
 		} else if err != nil {
-			slog.Info("error fetching blob", slog.String("err", err.Error()))
+			slog.Error("failed to fetch blob", "err", err)
 			http.Error(w, "internal error fetching blob", http.StatusInternalServerError)
 			return
 		}
@@ -28,6 +28,10 @@ func getBlobHandler(repo lib.Repository) http.HandlerFunc {
 		w.Header().Set("Cache-Control", "max-age=31536000, immutable")
 		w.Header().Set("Content-Type", "application/octet-stream")
 		w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
+
+		if r.Method == http.MethodHead {
+			return
+		}
 
 		http.ServeContent(w, r, "", time.Time{}, reader)
 	}
@@ -43,6 +47,7 @@ func putBlobHandler(repo lib.Repository) http.HandlerFunc {
 			if ok := errors.As(err, &hmErr); ok {
 				http.Error(w, hmErr.Error(), http.StatusUnprocessableEntity)
 			} else {
+				slog.Error("failed to store blob", "err", err)
 				http.Error(w, "failed to store blob", http.StatusInternalServerError)
 			}
 			return

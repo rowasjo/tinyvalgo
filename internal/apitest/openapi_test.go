@@ -12,7 +12,7 @@ func TestGetOpenApiYAML(t *testing.T) {
 	is := is.New(t)
 	handler := NewTestServer(t)
 
-	req, err := http.NewRequest("GET", "/openapi.yaml", nil)
+	req, err := http.NewRequest(http.MethodGet, "/openapi.yaml", nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
@@ -25,7 +25,7 @@ func TestGetSwaggerDocs(t *testing.T) {
 	is := is.New(t)
 	handler := NewTestServer(t)
 
-	req, err := http.NewRequest("GET", "/docs", nil)
+	req, err := http.NewRequest(http.MethodGet, "/docs", nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()

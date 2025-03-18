@@ -20,7 +20,7 @@ func TestGetBlobInvalidHashReturns400(t *testing.T) {
 	is := is.New(t)
 	handler := NewTestServer(t)
 
-	req, err := http.NewRequest("GET", "/blobs/invalid-hash", nil)
+	req, err := http.NewRequest(http.MethodGet, "/blobs/invalid-hash", nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
@@ -33,7 +33,7 @@ func TestGetUnknownBlobReturns404(t *testing.T) {
 	is := is.New(t)
 	handler := NewTestServer(t)
 
-	req, err := http.NewRequest("GET", blobUrl(unknown_blob_sha256_hash), nil)
+	req, err := http.NewRequest(http.MethodGet, blobUrl(unknown_blob_sha256_hash), nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
@@ -47,7 +47,7 @@ func TestPutBlobWithHashMismatchReturns422(t *testing.T) {
 	handler := NewTestServer(t)
 
 	body := strings.NewReader("body not matching hash")
-	req, err := http.NewRequest("PUT", blobUrl(unknown_blob_sha256_hash), body)
+	req, err := http.NewRequest(http.MethodPut, blobUrl(unknown_blob_sha256_hash), body)
 	is.NoErr(err)
 	req.Header.Set("Content-Type", "application/octet-stream")
 
@@ -75,7 +75,7 @@ func TestPutBlobThenGet(t *testing.T) {
 	rr := putExample1Blob(t, is, handler)
 	is.Equal(rr.Code, http.StatusNoContent)
 
-	req, err := http.NewRequest("GET", example1BlobURL, nil)
+	req, err := http.NewRequest(http.MethodGet, example1BlobURL, nil)
 	is.NoErr(err)
 
 	rr = httptest.NewRecorder()
@@ -92,7 +92,7 @@ func TestPubBlobThenHEAD(t *testing.T) {
 	rr := putExample1Blob(t, is, handler)
 	is.Equal(rr.Code, http.StatusNoContent)
 
-	req, err := http.NewRequest("HEAD", example1BlobURL, nil)
+	req, err := http.NewRequest(http.MethodHead, example1BlobURL, nil)
 	is.NoErr(err)
 
 	rr = httptest.NewRecorder()
@@ -107,7 +107,7 @@ func putExample1Blob(t *testing.T, is *is.I, handler http.Handler) *httptest.Res
 	t.Helper()
 
 	body := strings.NewReader(example1_blob)
-	req, err := http.NewRequest("PUT", example1BlobURL, body)
+	req, err := http.NewRequest(http.MethodPut, example1BlobURL, body)
 	is.NoErr(err)
 	req.Header.Set("Content-Type", "application/octet-stream")
 
