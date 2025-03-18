@@ -3,8 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -16,7 +15,7 @@ import (
 	"github.com/rowasjo/tinyvalgo/internal/tinyvalapi"
 )
 
-func run(ctx context.Context, w io.Writer, args []string) error {
+func run(ctx context.Context, args []string) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
@@ -35,9 +34,9 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	}
 
 	go func() {
-		log.Printf("listening on %s\n", httpServer.Addr)
+		slog.Info("listening", "addr", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
+			slog.Error("error listening and serving", "err", err)
 		}
 	}()
 
@@ -46,11 +45,10 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
-		shutdownCtx := context.Background()
-		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			fmt.Fprintf(os.Stderr, "error shutting down http server: %s\n", err)
+			slog.Error("error shutting down http server", "err", err)
 		}
 	}()
 	wg.Wait()
@@ -60,8 +58,8 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 func main() {
 
 	ctx := context.Background()
-	if err := run(ctx, os.Stdout, os.Args); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+	if err := run(ctx, os.Args); err != nil {
+		slog.Error("fatal error", "err", err)
 		os.Exit(1)
 	}
 }
