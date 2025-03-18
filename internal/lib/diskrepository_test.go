@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	example1_key   = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-	example1_value = `I am a little blob.`
+	example1_key   = "bfb272e79d30466cf1af7c16739659e8b4e9b85b5075bdb922806c55035497cf"
+	example1_value = "I am a little blob."
 	example1_size  = 19
 )
 
@@ -20,7 +20,7 @@ func TestGetBlobMissingHashReturns400(t *testing.T) {
 	repo := NewDiskRepository(t.TempDir())
 
 	_, _, err := repo.Get(context.Background(), "unknown key")
-	is.True(err != nil)
+	is.Equal(err, ErrNotFound)
 }
 
 func TestPutAndGetBlob(t *testing.T) {

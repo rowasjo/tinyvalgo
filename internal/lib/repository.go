@@ -2,6 +2,7 @@ package lib
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 )
@@ -13,9 +14,6 @@ import (
 // or not visible at all.
 type Repository interface {
 
-	// Exists checks whether a value exists for the given hash.
-	Exists(ctx context.Context, hash string) bool
-
 	// Put stores the content read from r under the given hash.
 	// It returns a *HashMismatchError if the computed hash doesn't match the provided hash,
 	// indicating that the input data does not correspond to the expected hash.
@@ -25,6 +23,7 @@ type Repository interface {
 	Put(ctx context.Context, hash string, r io.Reader) error
 
 	// Get retrieves a ReadSeeker and the size (in bytes) for the content associated with the given hash.
+	// It returns ErrNotFound if no such content exists.
 	Get(ctx context.Context, hash string) (io.ReadSeeker, int64, error)
 }
 
@@ -36,3 +35,5 @@ type HashMismatchError struct {
 func (e *HashMismatchError) Error() string {
 	return fmt.Sprintf("blob content hash mismatch: expected %s, got %s", e.Expected, e.Actual)
 }
+
+var ErrNotFound = errors.New("blob not found")

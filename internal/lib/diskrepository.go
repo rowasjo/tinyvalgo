@@ -18,12 +18,6 @@ func NewDiskRepository(baseDir string) Repository {
 	return &DiskRepository{BaseDir: baseDir}
 }
 
-func (d *DiskRepository) Exists(ctx context.Context, key string) bool {
-	path := filepath.Join(d.BaseDir, key)
-	_, err := os.Stat(path)
-	return err == nil
-}
-
 // Put writes the content from r to a temporary file within BaseDir, flushes it to stable storage,
 // and then atomically renames it to the final path (BaseDir/hash).
 //
@@ -45,12 +39,6 @@ func (d *DiskRepository) Put(ctx context.Context, hash string, r io.Reader) erro
 		tempFile.Close()
 		os.Remove(tempPath)
 	}()
-
-	// Copy data to the temp file while simultaneously calculating the hash.
-	hasher := sha256.New()
-	if _, err := io.Copy(tempFile, io.TeeReader(r, hasher)); err != nil {
-		return err
-	}
 
 	err = copyAndValidateSHA256Hash(tempFile, r, hash)
 	if err != nil {
@@ -75,12 +63,18 @@ func (d *DiskRepository) Get(ctx context.Context, hash string) (io.ReadSeeker, i
 
 	f, err := os.Open(path)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, 0, ErrNotFound
+		}
 		return nil, 0, err
 	}
 
 	info, err := f.Stat()
 	if err != nil {
 		f.Close()
+		if os.IsNotExist(err) {
+			return nil, 0, ErrNotFound
+		}
 		return nil, 0, err
 	}
 

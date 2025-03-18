@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Tinyval
   description: |
-    Hash table service for storing and retrieving values (blobs) using their SHA-256 hashes as keys.
+    Hash table service for storing and retrieving binary blobs using their SHA-256 hashes as keys.
   version: 0.1.0
 paths:
   /blobs/{hash}:
