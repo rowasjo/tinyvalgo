@@ -46,6 +46,7 @@ func TestPutBlobWithInvalidBodyReturns422(t *testing.T) {
 
 	body := strings.NewReader("body not matching hash")
 	req, err := http.NewRequest("PUT", blobUrl(unknown_blob_sha256_hash), body)
+	req.Header.Set("Content-Type", "application/octet-stream")
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()

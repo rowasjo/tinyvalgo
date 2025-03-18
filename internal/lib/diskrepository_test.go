@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	example1_key   = "the-key"
+	example1_key   = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 	example1_value = `I am a little blob.`
 	example1_size  = 19
 )
 
-func TestGetBlobInvalidHashReturns400(t *testing.T) {
+func TestGetBlobMissingHashReturns400(t *testing.T) {
 	is := is.New(t)
 	repo := NewDiskRepository(t.TempDir())
 

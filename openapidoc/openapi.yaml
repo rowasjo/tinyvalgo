@@ -29,9 +29,10 @@ paths:
         - $ref: "#/components/parameters/hashPathParam"
       requestBody:
         content:
-          multipart/form-data:
+          application/octet-stream:
             schema:
-              $ref: "#/components/schemas/Body_put_blobs_hash"
+              type: string
+              format: binary
         required: true
       responses:
         "200":
@@ -54,27 +55,6 @@ paths:
         "404":
           description: Not Found
 components:
-  schemas:
-    Body_put_blobs_hash:
-      required:
-        - blob
-      type: object
-      properties:
-        blob:
-          type: string
-          format: binary
-    HTTPError:
-      type: object
-      required:
-        - status
-        - error
-      properties:
-        status:
-          type: integer
-        error:
-          type: string
-        detail:
-          type: string
   parameters:
     hashPathParam:
       name: hash

@@ -1,6 +1,7 @@
 package tinyvalapi
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/rowasjo/tinyvalgo/internal/lib"
@@ -24,12 +25,17 @@ func putBlobHandler(repo lib.Repository) http.HandlerFunc {
 		ctx := r.Context()
 		hash := getHashPathParam(r)
 
-		err := repo.Put(ctx, hash, r.Body)
-		if err != nil {
-
+		if err := repo.Put(ctx, hash, r.Body); err != nil {
+			var hmErr *lib.HashMismatchError
+			if ok := errors.As(err, &hmErr); ok {
+				http.Error(w, hmErr.Error(), http.StatusUnprocessableEntity)
+			} else {
+				http.Error(w, "failed to store blob", http.StatusInternalServerError)
+			}
+			return
 		}
 
-		http.Error(w, "not implemented", http.StatusNotImplemented)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
