@@ -14,7 +14,7 @@ Swagger UI is served at `/docs` using the service's [OpenAPI schema](openapidoc/
 
 ```
 cd <source-dir>
-TINYVAL_DATA_DIR=<data-dir> go run cmd/tinyvalapi/main.go
+TINYVAL_DATA_DIR=<data-dir> TINYVAL_PORT=<port> go run cmd/tinyvalapi/main.go
 ```
 
 ### Run Tests

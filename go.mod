@@ -3,6 +3,7 @@ module github.com/rowasjo/tinyvalgo
 go 1.24
 
 require (
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/getkin/kin-openapi v0.130.0
 	github.com/matryer/is v1.4.1
 )

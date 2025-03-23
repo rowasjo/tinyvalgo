@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/caarlos0/env/v11"
 	"github.com/rowasjo/tinyvalgo/internal/lib"
 	"github.com/rowasjo/tinyvalgo/internal/tinyvalapi"
 )
@@ -19,18 +20,19 @@ func run(ctx context.Context, args []string) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-	dataDir := os.Getenv("TINYVAL_DATA_DIR")
-	if dataDir == "" {
-		return fmt.Errorf("TINYVAL_DATA_DIR environment variable is not set")
+	cfg, err := env.ParseAs[tinyvalapi.Config]()
+	if err != nil {
+		return err
 	}
 
-	repo := lib.NewDiskRepository(dataDir)
+	repo := lib.NewDiskRepository(cfg.DataDir)
 
-	srv := tinyvalapi.NewServer(repo)
+	app := tinyvalapi.NewApp(repo)
 
+	port := strconv.Itoa(int(cfg.Port))
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort("", "8080"),
-		Handler: srv,
+		Addr:    net.JoinHostPort("", port),
+		Handler: app,
 	}
 
 	go func() {

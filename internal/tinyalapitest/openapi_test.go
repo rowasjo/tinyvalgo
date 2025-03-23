@@ -1,4 +1,4 @@
-package apitest
+package tinyvalapitest
 
 import (
 	"net/http"
@@ -10,26 +10,26 @@ import (
 
 func TestGetOpenApiYAML(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
 	req, err := http.NewRequest(http.MethodGet, "/openapi.yaml", nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	app.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusOK)
 }
 
 func TestGetSwaggerDocs(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
 	req, err := http.NewRequest(http.MethodGet, "/docs", nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	app.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusOK)
 }

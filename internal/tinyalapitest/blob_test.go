@@ -1,4 +1,4 @@
-package apitest
+package tinyvalapitest
 
 import (
 	"fmt"
@@ -18,33 +18,33 @@ const (
 
 func TestGetBlobInvalidHashReturns400(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
 	req, err := http.NewRequest(http.MethodGet, "/blobs/invalid-hash", nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	app.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusBadRequest)
 }
 
 func TestGetUnknownBlobReturns404(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
 	req, err := http.NewRequest(http.MethodGet, blobUrl(unknown_blob_sha256_hash), nil)
 	is.NoErr(err)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	app.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusNotFound)
 }
 
 func TestPutBlobWithHashMismatchReturns422(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
 	body := strings.NewReader("body not matching hash")
 	req, err := http.NewRequest(http.MethodPut, blobUrl(unknown_blob_sha256_hash), body)
@@ -52,16 +52,16 @@ func TestPutBlobWithHashMismatchReturns422(t *testing.T) {
 	req.Header.Set("Content-Type", "application/octet-stream")
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	app.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusUnprocessableEntity)
 }
 
 func TestPutBlobWithValidHashReturns204(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
-	rr := putExample1Blob(t, is, handler)
+	rr := putExample1Blob(t, is, app)
 
 	t.Log(rr.Body.String())
 
@@ -70,16 +70,16 @@ func TestPutBlobWithValidHashReturns204(t *testing.T) {
 
 func TestPutBlobThenGet(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
-	rr := putExample1Blob(t, is, handler)
+	rr := putExample1Blob(t, is, app)
 	is.Equal(rr.Code, http.StatusNoContent)
 
 	req, err := http.NewRequest(http.MethodGet, example1BlobURL, nil)
 	is.NoErr(err)
 
 	rr = httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	app.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusOK)
 	is.Equal(rr.Body.String(), example1_blob)
@@ -87,16 +87,16 @@ func TestPutBlobThenGet(t *testing.T) {
 
 func TestPubBlobThenHEAD(t *testing.T) {
 	is := is.New(t)
-	handler := NewTestServer(t)
+	app := NewTestApp(t)
 
-	rr := putExample1Blob(t, is, handler)
+	rr := putExample1Blob(t, is, app)
 	is.Equal(rr.Code, http.StatusNoContent)
 
 	req, err := http.NewRequest(http.MethodHead, example1BlobURL, nil)
 	is.NoErr(err)
 
 	rr = httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	app.ServeHTTP(rr, req)
 
 	is.Equal(rr.Code, http.StatusOK)
 	is.Equal(rr.Body.Len(), 0)

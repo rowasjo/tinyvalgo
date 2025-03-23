@@ -1,0 +1,16 @@
+# Custom Dictionary Words
+apiserver
+caarlos
+getkin
+gorillamux
+matryer
+openapi
+openapidoc
+openapidocument
+rowasjo
+stylesheet
+swaggerui
+Tinyval
+tinyvalapi
+tinyvalapitest
+tinyvalgo

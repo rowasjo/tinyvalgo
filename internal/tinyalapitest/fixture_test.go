@@ -1,4 +1,4 @@
-package apitest
+package tinyvalapitest
 
 import (
 	"net/http"
@@ -8,8 +8,8 @@ import (
 	"github.com/rowasjo/tinyvalgo/internal/tinyvalapi"
 )
 
-func NewTestServer(t *testing.T) http.Handler {
+func NewTestApp(t *testing.T) http.Handler {
 	t.Helper()
 	repo := lib.NewDiskRepository(t.TempDir())
-	return tinyvalapi.NewServer(repo)
+	return tinyvalapi.NewApp(repo)
 }
